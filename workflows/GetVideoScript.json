@@ -1,0 +1,173 @@
+{
+  "name": "GetVideoScript",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Topic"
+            },
+            {
+              "name": "Celebrity"
+            },
+            {
+              "name": "Difficulty",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a7ba89c1-06e2-4465-bf96-f9321628b10b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yl2dHEHK2BHU9Ae6",
+          "mode": "list",
+          "cachedResultName": "GetBrandBrief"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "Input"
+          ],
+          "schema": [
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "f0f87f3c-7c2a-443e-b37b-1883fe6772b1",
+      "name": "Get Brand Brief"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Imagine you are celebrity LeBron James and you have been tasked with teaching an academic concept to a group of students. Write 5 scripts that explain the Civil War, in the mannerisms of the given celebrity. Using a scale from 0-1, describe the concept using an level of detail of 0.7, where 0 is describing the concept in surface-level detail, and 1 is describing it in the most meticulous way possible. Above all else, make sure that the script FOLLOWS THE PROVIDED BRAND BRIEF.\n\n----\n\nBRAND BRIEF: \n{{ $json.content[0] }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        400,
+        20
+      ],
+      "id": "456a4072-c4a0-44c5-aa80-086c824cfd6b",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "zwp3pLTyhKiJzv8x",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5fd0de08-3025-4618-8814-7fd1c6a7dd36",
+              "name": "scripts",
+              "value": "={{ $json.message.content.scripts }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        760,
+        20
+      ],
+      "id": "afc02ba4-52a5-403c-82db-ec3d9c2d8939",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Brand Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Brand Brief": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ae6f7fe9-191c-4dfd-8f3f-4e704ca2398b",
+  "meta": {
+    "instanceId": "be6a05faca76e133b267be3a427fa7758e4cf1aabb67ff5466313468db32c2c1"
+  },
+  "id": "6xnL4w44G1KSZeJD",
+  "tags": []
+}

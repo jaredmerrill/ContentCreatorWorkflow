@@ -1,0 +1,191 @@
+{
+  "name": "GetContentFeedback",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Script"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7c681485-71dd-49df-ae25-4d15e7c8c590",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yl2dHEHK2BHU9Ae6",
+          "mode": "list",
+          "cachedResultName": "GetBrandBrief"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "Input"
+          ],
+          "schema": [
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2ef5128a-2844-4646-8dad-a274667d5906",
+      "name": "Get Brand Brief"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are tasked with overviewing the inputted script that is focused on teaching an important academic concept in a fun and entertaining way by having it in the mannerisms of a given celebrity or athlete. You must analyze the script based on:\n\n- Whether it does a good job of effectively using humor that is relevant to the concept or celebrity, and not used awkwardly or out of place. \n- Whether it balances humor with effective communication and explanation of the concept\n- Whether the complexity and level of detail within the script matches its complexity level (Scale between 0-1, 0 being surface level explanation, 1 being detailed and meticulous explanation)\n\n\nOverall, make sure that the script aligns with the core values listed in the provided brand brief:\n\n{{ $json.content[0] }}\n\nAfter evaluation, output a score between 0 and 1, representing the alignment between the script and the given criteria listed above. (0 being bad, 1 being good). Output the score in the given JSON format, replacing the blanks with the appropriate data:\n\n{\n\n  \"script\": \"___\",\n  \"score\": ___,\n  \"feedback\": \"___\"\n}",
+              "role": "system"
+            },
+            {
+              "content": "=This is the script that you are evaluating:\n\n{{ $('When Executed by Another Workflow').item.json.Script }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        440,
+        0
+      ],
+      "id": "94c1a8f9-f67c-49c1-923d-8e4beb071d7d",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "zwp3pLTyhKiJzv8x",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bbbab140-7a65-4536-8bc3-71b7ac6c6756",
+              "name": "message.content.title",
+              "value": "={{ $json.message.content.script }}",
+              "type": "string"
+            },
+            {
+              "id": "8f2f9c44-1f1b-478c-b4e3-193f147e93dd",
+              "name": "message.content.score",
+              "value": "={{ $json.message.content.score }}",
+              "type": "number"
+            },
+            {
+              "id": "e29c3ebe-3aab-42ca-b404-b5608e5458b9",
+              "name": "message.content.feedback",
+              "value": "={{ $json.message.content.feedback }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        0
+      ],
+      "id": "0ba2d858-b6f3-45a5-bb38-b8821320856f",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Script": "Hi im obama and this is how multiplication works: haha ok thank you bye."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Brand Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Brand Brief": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ccfedbbf-8b08-4bd9-a9fe-dbc54c2e5a45",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "be6a05faca76e133b267be3a427fa7758e4cf1aabb67ff5466313468db32c2c1"
+  },
+  "id": "HFJWXvFd8pNN82hL",
+  "tags": []
+}

@@ -1,0 +1,387 @@
+{
+  "name": "Content Creator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Please read system message for instructions.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI assistant tasked with creating quality scripts that explain complex academic concepts in a fun, lighthearted way that is easy to comprehend. Each script is narrated by a different celebrity or athlete to keep the reader entertained, and the scripts must include high quality and appropriate humor that is relevant to the concept being taught or the celebrity teaching the concept. Here are the steps you must follow to create the best scripts you possibly can:\n\n1. Call the Get Brand Brief Tool\n- Do this first to familiarize yourself with what I am looking for in these scripts, and follow the guidelines to the best of your ability.\n\n2. Create a script\n- Should align with the brand brief, and be tailored to the given celebrity and complexity level of the script. Here are the details regarding the script you should be writing:\n\n  Narrator: Walter White\n  Topic: Combustion\n  Difficulty Level (0-1): 0.8\n\n- If any one of those three inputs is left blank, decide on your own what to fill them in with, but keep it within the guidance of the brand brief. Make the script a random narrator, and choose a unique and random academic concept and difficulty level each time. ONLY choose narrators you can find in the list of available narrators, which can be returned by calling the respective tool. Also, make sure to NOT include anything in the script that is not meant to be read, like stage directions, section titles or \"/n\" separators. Make the script one large paragraph.\n\n3. Call the Get Content Feedback tool\n- After creating your script, call this tool, inputting your script in the provided script input field as a string, and you will get a score ranging from 0-1 indicating how good the script is. This tool will also return some feedback based on what you need to improve. If the score is not above 0.8, call the tool again, this time inputting a new script that has been revised using the feedback until the score exceeds 0.8. However if you have called the openAI chat model more than 3 times or the score is above 0.8, stop this process immediately and return the current script. \n\n4. Return quality script\n- Final output should be a JSON object, as listed in the brand brief and the output parser tool:\n\n[\n    {\n      \"title\": \"[ENGAGING TITLE HERE — NOT JUST A SUMMARY, BUT WRITTEN FOR MAX SOCIAL APPEAL]\",\n      \"script\": \"[FULL SCRIPT TEXT HERE]\",\n      \"hashtags\": [\"#education\", \"#learning\", \"#celebrityvoice\", \"#funlearning\", \"#history\", \"#math\"],\n      \"narratorId\": \"[CORRESPONDING ID OF NARRATOR, AS STRING],\n\t  \"topic\": \"[NAME OF CONCEPT BEING TAUGHT IN SCRIPT],\n\t  \"difficulty\": [INSERT DIFFICULTY LEVEL OF SCRIPT AS NUMBER]\n    }\n\n    \n]\n\nThe narrator IDs are available in the GetAvailableNarrators tool. When choosing a narrator, fill the narratorId section with the corresponding ID, listed in the document.",
+          "maxIterations": 6
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "804119a0-4cd3-4803-9a20-77e174479545",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{$itemIndex}}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        240
+      ],
+      "id": "c74ab2d8-9e8c-42b6-a201-32b97582a854",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to return the brand brief that the AI-generated scripts must follow. It explains the intent of the project and how the scripts should be written.",
+        "workflowId": {
+          "__rl": true,
+          "value": "yl2dHEHK2BHU9Ae6",
+          "mode": "list",
+          "cachedResultName": "GetBrandBrief"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "Input"
+          ],
+          "schema": [
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        240
+      ],
+      "id": "7f9494be-1951-48fb-a7bd-78f81a386208",
+      "name": "Get Brand Brief"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "\n  {\n      \"title\": \"\",\n      \"script\": \"\",\n      \"hashtags\": [\"\", \"\", \"\"],\n      \"narratorId\": \"\",\n\t  \"topic\": \"\",\n\t  \"difficulty\": \"\"\n  }",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        820,
+        240
+      ],
+      "id": "1da4e584-8738-42f4-8060-01bb336c69d4",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        820,
+        360
+      ],
+      "id": "5828a7b0-2ddb-472b-9219-099c09a5a4fe",
+      "name": "OpenAI Output Parser",
+      "credentials": {
+        "openAiApi": {
+          "id": "zwp3pLTyhKiJzv8x",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        240
+      ],
+      "id": "4af88187-7366-40c9-8d8f-b9f2030683ba",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "zwp3pLTyhKiJzv8x",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to get a numerical score between 0-1 indicating the quality of the script.",
+        "workflowId": {
+          "__rl": true,
+          "value": "HFJWXvFd8pNN82hL",
+          "mode": "list",
+          "cachedResultName": "GetContentFeedback"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Script": "={{ $fromAI('Script', `Here you should input the Script within the query.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Script",
+              "displayName": "Script",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        240
+      ],
+      "id": "bfef983b-f3cd-47a1-a5d2-e050d733f8be",
+      "name": "Get Content Feedback"
+    },
+    {
+      "parameters": {
+        "resource": "speech",
+        "voice": {
+          "__rl": true,
+          "value": "={{ $json.output.narratorId }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output.script }}",
+        "additionalOptions": {
+          "model": {
+            "mode": "list",
+            "value": "eleven_multilingual_v2"
+          },
+          "voiceSettings": "{\n  \"stability\": 1,\n  \"similarity_boost\": 1,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
+        },
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -140
+      ],
+      "id": "3af3c793-de5f-4e7b-8125-134245338915",
+      "name": "ElevenLabs",
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "SrC6dLQPXzMFKx6v",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to see the list of available narrators.",
+        "workflowId": {
+          "__rl": true,
+          "value": "RVZ1Wxd8hMUsDPQa",
+          "mode": "list",
+          "cachedResultName": "GetAvailableNarrators"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "Input"
+          ],
+          "schema": [
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        240
+      ],
+      "id": "ae604e0a-6d30-424a-a662-2f7a0c70f0a7",
+      "name": "Get Available Narrators"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94c0623d-014b-4d57-8748-5cd355328f58",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Brand Brief": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Output Parser": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Content Feedback": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Available Narrators": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "e7b56afa-e1dd-4931-988e-a458f4537661",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "be6a05faca76e133b267be3a427fa7758e4cf1aabb67ff5466313468db32c2c1"
+  },
+  "id": "1jTtzS62SU8wyZKy",
+  "tags": []
+}
